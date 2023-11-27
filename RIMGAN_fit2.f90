@@ -1,17 +1,17 @@
 ! Fit phonon dispersion at special points
 PROGRAM RIMGAN_fit
 IMPLICIT NONE
-INTEGER, PARAMETER :: M=37,N=37,K=M+1,Nq=97
+INTEGER, PARAMETER :: M=38,N=38,K=M+1,Nq=97
 INTEGER :: No,ii,QI_NUM,JN,JH,ISP,icoul,ion_ii
 INTEGER :: Nk,i,ik,IGAMMA,IPRINT,ITMAX,ISEED,jj,kk,IT,IEV2,IEV1,FOP,iqs,IQ_SYM(7)
 REAL*8 :: ALPHA,BETA,DELTA,aa_wz,cc_wz,dnom,Z1
 REAL*8 :: X(K,M),R(K,M),F(K),VARY(M)
-REAL*8 :: G(M),H(M),XC(M)
+REAL*8 :: G(M),H(M),XCF(M),XC(M-1)
 REAL*8 :: XIN(37),P1,P2,P3,aij(2,2),bij(2,2),vk(3),QL(3,Nq),Qx,Qy,Qz,Q1
 REAL*8 :: PB_RIM(12,500),PB_HS(12,7),QLs(3,7),RI(40,3)
 COMPLEX*16 :: DR(12,12),DSR(4,4,3,3),DDR(4,3,3),DDD(4,3,3)
 COMPLEX*16 :: CI,CCQ(4,4,3,3),CC1(4,3,3),CCD(4,3,3),DD,CCL(4,4,3,3,7)
-COMMON/PARK/ XIN,RI,QLs,CCL,DDR
+COMMON/PARK/ XIN,Z1,RI,QLs,CCL,DDR
 !-------------------------------------------------------------------
 !WRITE(6,*) 'FOP= (1: YES, 0: NO)'
 !READ(5,*) FOP
@@ -90,12 +90,12 @@ DO ii=1,N
     END DO
 END DO
 ! INITIAL GUESS OF THE INPUT PARAMETERS (RIM PARAMETER)
-DO II=1,M
+DO II=1,M-1
     X(1,II)=XIN(II)
 END DO
 !----------
-if(isp==0)CALL GANPB(No,XIN,PB_RIM,PB_HS,ISP,RI,QL,CCL,CC1,DDR)
-if(isp==1)CALL GANPB(No,XIN,PB_RIM,PB_HS,ISP,RI,QLs,CCL,CC1,DDR)
+if(isp==0)CALL GANPB(No,XIN,Z1,PB_RIM,PB_HS,ISP,RI,QL,CCL,CC1,DDR) ! check??
+if(isp==1)CALL GANPB(No,XIN,Z1,PB_RIM,PB_HS,ISP,RI,QLs,CCL,CC1,DDR)
 !write(6,*) 'PB_HS', PB_HS(:,3)
 DO ii=1,NO
 WRITE (21,7001)float(ii-1), (PB_RIM(jj,ii),jj=1,12) !  f (in cm^-1)
@@ -106,11 +106,15 @@ ENDDO
 
 !STOP
 !--------------------------
-if(isp==1)CALL CONSX(N,M,K,ITMAX,ALPHA,BETA,IGAMMA,DELTA,X,R,F,IT,IEV2,6,G,H,XC,IPRINT)
+if(isp==1)XCF(1:M-1)=XIN
+if(isp==1)XCF(M)=Z1
+if(isp==1)CALL CONSX(N,M,K,ITMAX,ALPHA,BETA,IGAMMA,DELTA,X,R,F,IT,IEV2,6,G,H,XCF,IPRINT)
+if(isp==1)XC=XCF(1:M-1)
+if(isp==1)Z1=XCF(M)
 end if
 if(isp==0)XC=XIN
-  if(isp==0)CALL GANPB(No,XC,PB_RIM,PB_HS,ISP,RI,QL,CCL,CC1,DDR)
-  if(isp==1)CALL GANPB(No,XC,PB_RIM,PB_HS,ISP,RI,QLs,CCL,CC1,DDR)
+  if(isp==0)CALL GANPB(No,XC,Z1,PB_RIM,PB_HS,ISP,RI,QL,CCL,CC1,DDR)
+  if(isp==1)CALL GANPB(No,XC,Z1,PB_RIM,PB_HS,ISP,RI,QLs,CCL,CC1,DDR)
 
  DO ii=1,Nq
  WRITE (21,7001) float(ii-1),(PB_RIM(jj,ii),jj=1,12) !  f (in cm^-1)
@@ -121,7 +125,7 @@ WRITE(6,*) F
 DO ii=1,7
 WRITE (22,7001) (PB_HS(jj,ii),jj=1,12) !  f (in cm^-1)
 ENDDO
-WRITE(30,7002) XC
+WRITE(30,7002) XC,Z1
 endif
 
 CLOSE(UNIT=11)
@@ -361,17 +365,18 @@ DO ii=1,40
     SUBROUTINE FUNC(N,M,K,X,F,I) ! for ZnO in units of meV
 IMPLICIT NONE
 INTEGER :: Nq,N,M,K,I,J,IB,IK,ISK,ii,jj
-REAL*8 :: X(K,M),F(K),PV(N),XIN(37)
+REAL*8 :: X(K,M),F(K),PV(N),XIN(37),Z1
 REAL*8 :: D1,D2,D3,D4,D5,D6,DD,QLs(3,7),PB_HS(12,7),PB_RIM(12,500)  ! ,QLs(3,6)
 REAL*8 :: D7,D8,D9,D10,D11,D12,D13,D14,D15,D16,D17,D18,D19,D20,D21,D22,D23,D24,D25,RI(40,3)
 complex*16:: CCL(4,4,3,3,7),CC1(4,3,3),DDR(4,3,3)
-COMMON/PARK/ XIN,RI,QLs,CCL,DDR
+COMMON/PARK/ XIN,Z1,RI,QLs,CCL,DDR
 
-DO J=1,N
+DO J=1,N-1
     PV(J)=X(I,J)
 END DO
+    Z1=X(I,N)
 CC1=0
-CALL GANPB(7,PV,PB_RIM,PB_HS,1,RI,QLs,CCL,CC1,DDR)
+CALL GANPB(7,PV,Z1,PB_RIM,PB_HS,1,RI,QLs,CCL,CC1,DDR)
 DO ii=1,7
 WRITE (40,7001) (PB_HS(jj,ii),jj=1,12) !  f (in cm^-1)
 ENDDO
@@ -408,12 +413,13 @@ DD=0.
     D15=(PB_HS(4,2)-20.73)**2
     !D16=(PB_HS(7,2)/2.+PB_HS(8,2)/2.-576.)**2
     !------ A point---------
-    D17=(PB_HS(5,5)/2.+PB_HS(6,5)/2.-23.29)**2
+    D19=(PB_HS(1,5)-8.76)**2+(PB_HS(2,5)-8.76)**2
+    D17=(PB_HS(5,5)-23.29)**2+(PB_HS(6,5)-23.29)**2
     D18=(PB_HS(11,5)/2.+PB_HS(12,5)/2.-68.79)**2
 	!---------------
 !ENDDO
 !write(6,*) 'DD=',DD
-DD=D1+D2+D3+D4+D5+D6+D7+D8+D10+D11+D12+D13+D14+D15+D17+D18+D9 
+DD=D1+D2+D3+D4+D5+D6+D7+D8+D10+D11+D12+D13+D14+D15+D17+D18+D19+D9 
 F(I)=-DD
 if(I==1)write(6,*)PB_HS(1:3,4)
 return
@@ -422,7 +428,7 @@ END SUBROUTINE
 SUBROUTINE CONST(N,M,K,X,G,H,L)
 INTEGER :: ii
 REAL*8 :: X(K,M),G(M),H(M)
-COMMON/PARK/ PAR(37)
+COMMON/PARK/ PAR(38)
 
 DO ii=1,N
     G(ii)=PAR(ii)*0.9-0.5

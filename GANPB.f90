@@ -1,6 +1,6 @@
 ! phonon diseprsion in GaN in general direcitons
 !PROGRAM MAIN
-SUBROUTINE GANPB(No,PSHR,FBD,FBD_HS,ISP,RI,QLs,CCL,CC1,DDR)
+SUBROUTINE GANPB(No,PSHR,Z1,FBD,FBD_HS,ISP,RI,QLs,CCL,CC1,DDR)
 ! ISP=0  (phonon dispersion),  1 (box fitting)
 IMPLICIT NONE
 INTEGER, PARAMETER :: Nq=97   ! # q points for phonon dispersion
@@ -30,12 +30,7 @@ eps=5.5
 seps=sqrt(eps)
 VA=sqrt(3.)*aa_wz**2*cc_wz/2.
 
-Z1=1.1550   ! GaN
-!Z1=0.0    ! ZnO
-! Z1=1.1550   ! GaN
-!Z1=0.5    ! ZnO
-!Z1=PSHR(38)
-
+!Z1=1.1550   ! GaN
 !ZA(1)=Z1/seps/2.
 !ZA(2)=Z1/seps/2.
 !ZA(3)=Z1/seps/2.
