@@ -119,7 +119,7 @@ RJ=RI(2,:)-RI(1,:)
 DO near_ii=1,1
     SELECT CASE (near_ii)
         CASE (1) 
-            SYM_OP=II_op ! rotation matrix
+            SYM_OP=II_op
     END SELECT
     XI(1)=SYM_OP(1,1)*RJ(1)+SYM_OP(1,2)*RJ(2)+SYM_OP(1,3)*RJ(3)
 	XI(2)=SYM_OP(2,1)*RJ(1)+SYM_OP(2,2)*RJ(2)+SYM_OP(2,3)*RJ(3)
@@ -578,7 +578,7 @@ DO near_ii=1,6
         CASE (6) 
             SYM_OP=sigma_v3
     END SELECT
-    XI(1)=SYM_OP(1,1)*RJ(1)+SYM_OP(1,2)*RJ(2)+SYM_OP(1,3)*RJ(3)
+     XI(1)=SYM_OP(1,1)*RJ(1)+SYM_OP(1,2)*RJ(2)+SYM_OP(1,3)*RJ(3)
 	XI(2)=SYM_OP(2,1)*RJ(1)+SYM_OP(2,2)*RJ(2)+SYM_OP(2,3)*RJ(3)
 	XI(3)=SYM_OP(3,1)*RJ(1)+SYM_OP(3,2)*RJ(2)+SYM_OP(3,3)*RJ(3)
 	
@@ -773,7 +773,7 @@ IF (Q1.LT.0.00001) THEN
                 DO ion_jj=1,4
                     DD=DD-DSR(ion_ii,ion_jj,ii,jj)
                 ENDDO
-                    DDR(ion_ii,ii,jj)=DD
+                DDR(ion_ii,ii,jj)=DD
             ENDDO
         ENDDO
     ENDDO
