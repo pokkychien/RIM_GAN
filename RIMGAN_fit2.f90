@@ -26,7 +26,7 @@ READ(11,*) XIN(i)
 !XIN(i)=1.2/2.0*XIN(i)   ! rescale from GaN to ZnO
 XIN(i)=XIN(i)   ! rescale from GaN to ZnO
 enddo
-!READ(11,*)Z1
+READ(11,*)Z1
 WRITE(6,*) 'XIN=' , XIN
     read(12,*)aa_wz    ! lattice constant (length of a2 for triangular lattice) in A
 	read(12,*)aij(:,1)   ! a(i,j)  j=1,2 for a1 & a2 primitive vectors (in units of a)
@@ -73,7 +73,6 @@ do iqs=1,7
     ENDDO
     CCL(:,:,:,:,iqs)=CCQ
 enddo  ! iqs
-    write(130,7001) CCL
 !    QLs=QL(:,1:No)
 ALPHA=1.3
 BETA=0.0001
@@ -112,8 +111,7 @@ end if
 if(isp==0)XC=XIN
   if(isp==0)CALL GANPB(No,XC,PB_RIM,PB_HS,ISP,RI,QL,CCL,CC1,DDR)
   if(isp==1)CALL GANPB(No,XC,PB_RIM,PB_HS,ISP,RI,QLs,CCL,CC1,DDR)
-  if(isp==0)write(120,7001) QL(:,20),QL(:,29),QL(:,44),QL(:,45),QL(:,53),QL(:,72)
-  if(isp==1)write(121,7001) QLs(:,1:6)
+
  DO ii=1,Nq
  WRITE (21,7001) float(ii-1),(PB_RIM(jj,ii),jj=1,12) !  f (in cm^-1)
  ENDDO
@@ -254,8 +252,7 @@ IQ_SYM(3)=GK_INX-1  ! for discontinuity along Gamma to M
 IQ_SYM(4)=GK_INX
 IQ_SYM(5)=AK_INX
 IQ_SYM(6)=HK_INX
-IQ_SYM(7)=GK_INX+2
-!IQ_SYM(7)=79
+IQ_SYM(7)=KK_INX/2
 !WRITE(6,*) QL_X(1:QI_NUM)
 
 QL(1,:)=QL_X
@@ -278,9 +275,9 @@ DO iqs=1,QI_NUM
 	ENDIF
 	IF (iSP.EQ.1) THEN
 		IF (iqs.EQ.5) THEN
-			QLs(1,iqs)=QL(1,iq)
-			QLs(2,iqs)=QL(2,iq)
-			QLs(3,iqs)=QL(3,iq)
+			QLs(1,iqs)=1./2.*1E-4
+			QLs(2,iqs)=1./(2.*sqrt(3.))*1E-4
+			QLs(3,iqs)=0.
 		ELSE
 			QLs(1,iqs)=QL(1,iq)
 			QLs(2,iqs)=QL(2,iq)
@@ -396,37 +393,27 @@ DD=0.
     ELSE
         D9=0.
     ENDIF
-	IF (PB_HS(1,5).LE.0.) THEN
+	IF (PB_HS(1,7).LE.0.) THEN
         D21=10000
     ELSE
         D21=0.
     ENDIF
-    IF (PB_HS(1,7).LE.0.) THEN
-        D22=10000
-    ELSE
-        D22=0.
-    ENDIF
     !------ K point---------
-    D10=(PB_HS(1,1)-18.06)**2+(PB_HS(2,1)-18.06)**2+(PB_HS(3,1)-18.06)**2
-    D24=(PB_HS(4,1)-22.61)**2
-    D20=(PB_HS(6,1)-29.06)**2+(PB_HS(5,1)-29.06)**2
-    D11=(PB_HS(7,1)-59.01)**2+(PB_HS(8,1)-59.01)**2   
-    D23=(PB_HS(12,1)-66.20)**2+(PB_HS(10,1)-65.32)**2+(PB_HS(11,1)-65.32)**2+(PB_HS(9,1)-60.92)**2
+    D10=(PB_HS(1,1)-18.06)**2
+    D11=(PB_HS(7,1)/2.+PB_HS(8,1)/2.-59.01)**2
     !------ M point---------
-    D12=(PB_HS(1,2)-11.45)**2
+    D12=(PB_HS(1,2)-10.45)**2
     D13=(PB_HS(2,2)-15.45)**2
     D14=(PB_HS(3,2)-16.33)**2
     D15=(PB_HS(4,2)-20.73)**2
     !D16=(PB_HS(7,2)/2.+PB_HS(8,2)/2.-576.)**2
     !------ A point---------
-    D17=(PB_HS(6,5)-23.29)**2  
+    D17=(PB_HS(5,5)/2.+PB_HS(6,5)/2.-23.29)**2
     D18=(PB_HS(11,5)/2.+PB_HS(12,5)/2.-68.79)**2
-    D19=(PB_HS(1,5)-8.76)**2   
 	!---------------
 !ENDDO
 !write(6,*) 'DD=',DD
-DD=D1+D2+D3+D4+D5+D6+D7+D8+D10+D11*1000+D12+D13+D14+D15+D17+D18+D19+D20+D9+D21+D22+D23+D24
-!DD=D1+D2+D3+D4+D5+D6+D7+D8+D10+D11+D12+D13+D14+D15+D17+D18+D9+D21
+DD=D1+D2+D3+D4+D5+D6+D7+D8+D10+D11+D12+D13+D14+D15+D17+D18+D9 
 F(I)=-DD
 if(I==1)write(6,*)PB_HS(1:3,4)
 return
@@ -438,12 +425,7 @@ REAL*8 :: X(K,M),G(M),H(M)
 COMMON/PARK/ PAR(37)
 
 DO ii=1,N
-	IF (PAR(ii) >= 0.) THEN    
-    G(ii)=PAR(ii)*0.8 -1.5
-    H(ii)=PAR(ii)*1.2 +1.5
-    ELSE
-    G(ii)=PAR(ii)*1.2 -1.5
-    H(ii)=PAR(ii)*0.8 +1.5
-    END IF
+    G(ii)=PAR(ii)*0.9-0.5
+    H(ii)=PAR(ii)*1.1+0.5
 ENDDO
     END

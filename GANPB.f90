@@ -30,9 +30,10 @@ eps=5.5
 seps=sqrt(eps)
 VA=sqrt(3.)*aa_wz**2*cc_wz/2.
 
-
 Z1=1.1550   ! GaN
 !Z1=0.0    ! ZnO
+! Z1=1.1550   ! GaN
+!Z1=0.5    ! ZnO
 !Z1=PSHR(38)
 
 !ZA(1)=Z1/seps/2.
