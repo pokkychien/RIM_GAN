@@ -106,7 +106,7 @@ ENDDO
 ! ENDDO
 
 !STOP
-!--------------------------
+!-------------------------
 if(isp==1)CALL CONSX(N,M,K,ITMAX,ALPHA,BETA,IGAMMA,DELTA,X,R,F,IT,IEV2,6,G,H,XC,IPRINT)
 end if
 if(isp==0)XC=XIN

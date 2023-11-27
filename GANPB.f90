@@ -31,8 +31,8 @@ seps=sqrt(eps)
 VA=sqrt(3.)*aa_wz**2*cc_wz/2.
 
 
-!Z1=1.1550   ! GaN
-Z1=0.0    ! ZnO
+Z1=1.1550   ! GaN
+!Z1=0.0    ! ZnO
 !Z1=PSHR(38)
 
 !ZA(1)=Z1/seps/2.
@@ -108,9 +108,10 @@ CALL GANSRD(aa_wz,cc_wz,QX,QY,QZ,RI,PSHR,DSR,DDR)
 			HI(I1,I2) = -CI*DR(J1,J2)
 		ENDDO
 	ENDDO
-    IS=0
+    IS=1
     if(isp==0)write(6,*)' iq=',iqs
 	CALL CH(12,12,HR,HI,OMEGA,IS,ZR,ZI,FV1,FV2,FM1,IER)
+!    CALL RS(12,12,HR,OMEGA,IS,ZR,FV1,FV2,IER)
 	IF(IER.NE.0)WRITE(6,*)'  EISPACK ERROR, IER=',IER 
 	THZ=sqrt(14.4*9./(9.35*VA))*100./(2.*PI)
     INVCM=THZ*33.3556

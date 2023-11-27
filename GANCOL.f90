@@ -120,7 +120,7 @@ DO K1=1,4
                             X2=X(1)**2+X(2)**2+X(3)**2
                             X1=sqrt(X2)
                             IF (X1.GT.sqrt(ETA)*aa_wz/100.) THEN
-                                H1=3/(X1**3)*(1-erf(X1))+2./sqrt(PI)*(3./X2+2)*EXP(-X2)
+                                H1=3/(X1**3)*(1-erf(X1))+2./sqrt(PI)*(3./X2+2)*EXP(-X2) ! fast decay in real space
                                 H1=X(ii)*X(jj)*H1/X2
                                 IF (ii.EQ.jj) THEN
                                     H2=1./(X1**3)*(1-erf(X1))+2./sqrt(PI)/X2*EXP(-X2)
